@@ -645,21 +645,7 @@
                             <>
                                 {invalidEmailCount > 0 && (
                                     <div className="invalid-banner" role="alert" aria-live="polite">
-                                        <span>
-                                            {(() => {
-                                                const n = invalidEmailCount;
-                                                const n10 = n % 10;
-                                                const n100 = n % 100;
-                                                let w = "адресов";
-                                                if (n10 === 1 && n100 !== 11) w = "адрес";
-                                                else if (
-                                                    n10 >= 2 &&
-                                                    n10 <= 4 &&
-                                                    (n100 < 10 || n100 >= 20)
-                                                )
-                                                    w = "адреса";
-                                                return `Некорректный формат у ${n} ${w}`;
-                                            })()}
+                                        <span>{`Некорректный формат у ${invalidEmailCount} email`}
                                         </span>
                                         <button type="button" onClick={scrollToFirstInvalid}>
                                             Показать в списке
