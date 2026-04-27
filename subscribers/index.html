@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email — список и поиск</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        html {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        :root {
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            color: #1a1a1a;
+            background: #e8ecf1;
+        }
+
+        body {
+            margin: 0;
+            height: 100%;
+            overflow: hidden;
+            box-sizing: border-box;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 2rem 1rem;
+        }
+
+        .card {
+            width: 100%;
+            max-width: 360px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 1.25rem 1.5rem;
+            border: 1px solid #e0e4ea;
+        }
+
+        .card h1 {
+            margin: 0 0 1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-wrap input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 0.65rem 0.75rem;
+            font-size: 1rem;
+            border: 1px solid #c8ced8;
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+
+        .field-wrap input:focus {
+            border-color: #4a7cff;
+            box-shadow: 0 0 0 3px rgba(74, 124, 255, 0.2);
+        }
+
+        .hint {
+            margin-top: 0.4rem;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .suggestions {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 4px);
+            max-height: 220px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #c8ced8;
+            border-radius: 8px;
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+            z-index: 10;
+            list-style: none;
+            margin: 0;
+            padding: 0.25rem 0;
+        }
+
+        .suggestions li button {
+            width: 100%;
+            text-align: left;
+            padding: 0.5rem 0.75rem;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .suggestions li button:hover,
+        .suggestions li button:focus {
+            background: #f0f4ff;
+        }
+
+        .suggestions .name {
+            font-weight: 500;
+            color: #111;
+        }
+
+        .suggestions .email {
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+
+        .list {
+            margin: 0.75rem 0 0;
+            padding: 0;
+            list-style: none;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.35rem;
+            padding: 0.28rem 0.4rem;
+            border-radius: 4px;
+            margin-bottom: 0.15rem;
+            font-size: 0.8125rem;
+            line-height: 1.35;
+            word-break: break-all;
+            border: 1px solid #e8eaef;
+            background: #fafbfc;
+        }
+
+        .list li.invalid {
+            background: #fde8e8;
+            border-color: #f5c2c2;
+            scroll-margin-block: 8px;
+        }
+
+        .invalid-banner {
+            margin-top: 1rem;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid #f5c2c2;
+            background: #fde8e8;
+            font-size: 0.85rem;
+            color: #7f1d1d;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem 0.75rem;
+        }
+
+        .invalid-banner button {
+            padding: 0.3rem 0.55rem;
+            font-size: 0.8rem;
+            border: 1px solid #e99;
+            border-radius: 6px;
+            background: #fff;
+            cursor: pointer;
+            color: #7f1d1d;
+        }
+
+        .invalid-banner button:hover {
+            background: #fff5f5;
+        }
+
+        .list li .remove {
+            flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.35rem;
+            height: 1.35rem;
+            padding: 0;
+            border: none;
+            border-radius: 3px;
+            background: transparent;
+            color: #94a3b8;
+            cursor: pointer;
+        }
+
+        .list li .remove svg {
+            display: block;
+        }
+
+        .list li .remove:hover {
+            background: rgba(15, 23, 42, 0.06);
+            color: #b91c1c;
+        }
+
+        .list li.invalid .remove:hover {
+            background: rgba(185, 28, 28, 0.12);
+        }
+
+        .empty {
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: #9ca3af;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useCallback, useMemo, useRef } = React;
+
+        /** Локальный «ответ API»: массив или { users: [] } */
+        function normalizeUsers(payload) {
+            const raw = Array.isArray(payload) ? payload : payload?.users;
+            if (!Array.isArray(raw)) return [];
+            return raw
+                .map((u) => {
+                    const fn = u.firstname ?? u.firstName ?? "";
+                    const ln = u.lastname ?? u.lastName ?? "";
+                    const nameFromParts = [fn, ln].filter(Boolean).join(" ").trim();
+                    const name =
+                        (u.name && String(u.name).trim()) || nameFromParts || "";
+                    const username = u.login?.username ?? u.username ?? "";
+                    return {
+                        id: u.id,
+                        name,
+                        email: String(u.email || ""),
+                        username: String(username),
+                        company: String(u.company || ""),
+                    };
+                })
+                .filter((u) => u.email);
+        }
+
+        const USERS_LOCAL_RAW = [
+            { id: 1, firstname: "Иван", lastname: "Петров", email: "ivan.petrov@mail.ru", username: "i.petrov", company: "ООО «Вектор»" },
+            { id: 2, firstname: "Мария", lastname: "Сидорова", email: "maria.sidorova@mail.ru", username: "m.sidorova", company: "ИП Сидорова" },
+            { id: 3, firstname: "Алексей", lastname: "Козлов", email: "alexey.kozlov@yandex.ru", username: "a.kozlov", company: "АО «Север»" },
+            { id: 4, firstname: "Елена", lastname: "Морозова", email: "elena.morozova@mail.ru", username: "e.morozova", company: "" },
+            { id: 5, firstname: "Дмитрий", lastname: "Волков", email: "dmitry.volkov@gmail.com", username: "d.volkov", company: "ООО «Логистика»" },
+            { id: 6, firstname: "Анна", lastname: "Соколова", email: "anna.sokolova@mail.ru", username: "a.sokolova", company: "" },
+            { id: 7, firstname: "Сергей", lastname: "Лебедев", email: "sergey.lebedev@yandex.ru", username: "s.lebedev", company: "ПАО «Энергия»" },
+            { id: 8, firstname: "Ольга", lastname: "Новикова", email: "olga.novikova@mail.ru", username: "o.novikova", company: "" },
+            { id: 9, firstname: "Андрей", lastname: "Егоров", email: "andrey.egorov@gmail.com", username: "a.egorov", company: "ООО «Техно»" },
+            { id: 10, firstname: "Наталья", lastname: "Павлова", email: "natalya.pavlova@mail.ru", username: "n.pavlova", company: "Клиника «Здоровье»" },
+            { id: 11, firstname: "Павел", lastname: "Семёнов", email: "pavel.semenov@yandex.ru", username: "p.semenov", company: "" },
+            { id: 12, firstname: "Татьяна", lastname: "Голубева", email: "tatiana.golubeva@mail.ru", username: "t.golubeva", company: "ООО «Книга»" },
+            { id: 13, firstname: "Михаил", lastname: "Виноградов", email: "mikhail.vinogradov@gmail.com", username: "m.vinogradov", company: "" },
+            { id: 14, firstname: "Юлия", lastname: "Богданова", email: "yulia.bogdanova@mail.ru", username: "y.bogdanova", company: "АН «Дом»" },
+            { id: 15, firstname: "Виктор", lastname: "Орлов", email: "viktor.orlov@yandex.ru", username: "v.orlov", company: "" },
+            { id: 16, firstname: "Светлана", lastname: "Фёдорова", email: "svetlana.fedorova@mail.ru", username: "s.fedorova", company: "ООО «Медиа»" },
+            { id: 17, firstname: "Константин", lastname: "Макаров", email: "konstantin.makarov@gmail.com", username: "k.makarov", company: "" },
+            { id: 18, firstname: "Ирина", lastname: "Зайцева", email: "irina.zaytseva@mail.ru", username: "i.zaytseva", company: "Школа №12" },
+            { id: 19, firstname: "Николай", lastname: "Соловьёв", email: "nikolay.solovyov@yandex.ru", username: "n.solovyov", company: "" },
+            { id: 20, firstname: "Екатерина", lastname: "Кузнецова", email: "ekaterina.kuznetsova@mail.ru", username: "e.kuznetsova", company: "ООО «Альфа»" },
+            { id: 21, firstname: "Роман", lastname: "Киселёв", email: "roman.kiselev@gmail.com", username: "r.kiselev", company: "" },
+            { id: 22, firstname: "Дарья", lastname: "Никитина", email: "daria.nikitina@mail.ru", username: "d.nikitina", company: "Студия «Пиксель»" },
+            { id: 23, firstname: "Артём", lastname: "Титов", email: "artem.titov@yandex.ru", username: "a.titov", company: "" },
+            { id: 24, firstname: "Ксения", lastname: "Комарова", email: "kseniya.komarova@mail.ru", username: "k.komarova", company: "НКО «Росток»" },
+            { id: 25, firstname: "Владимир", lastname: "Смирнов", email: "vladimir.smirnov@mail.ru", username: "v.smirnov", company: "ООО «Строй»" },
+            { id: 26, firstname: "Людмила", lastname: "Кузьмина", email: "lyudmila.kuzmina@yandex.ru", username: "l.kuzmina", company: "" },
+            { id: 27, firstname: "Григорий", lastname: "Попов", email: "grigory.popov@gmail.com", username: "g.popov", company: "Аптека «Вита»" },
+            { id: 28, firstname: "Валентина", lastname: "Васильева", email: "valentina.vasilieva@mail.ru", username: "v.vasilieva", company: "" },
+            { id: 29, firstname: "Станислав", lastname: "Михайлов", email: "stanislav.mikhailov@yandex.ru", username: "s.mikhailov", company: "ООО «Авто»" },
+            { id: 30, firstname: "Вероника", lastname: "Андреева", email: "veronika.andreeva@mail.ru", username: "v.andreeva", company: "" },
+            { id: 31, firstname: "Максим", lastname: "Николаев", email: "maxim.nikolaev@gmail.com", username: "m.nikolaev", company: "Банк «Союз»" },
+            { id: 32, firstname: "Полина", lastname: "Орлова", email: "polina.orlova@mail.ru", username: "p.orlova", company: "" },
+            { id: 33, firstname: "Игорь", lastname: "Жуков", email: "igor.zhukov@yandex.ru", username: "i.zhukov", company: "ООО «Охрана»" },
+            { id: 34, firstname: "Алина", lastname: "Захарова", email: "alina.zakharova@mail.ru", username: "a.zakharova", company: "" },
+            { id: 35, firstname: "Олег", lastname: "Степанов", email: "oleg.stepanov@gmail.com", username: "o.stepanov", company: "ТЦ «Плаза»" },
+            { id: 36, firstname: "Кристина", lastname: "Некрасова", email: "kristina.nekrasova@mail.ru", username: "k.nekrasova", company: "" },
+            { id: 37, firstname: "Фёдор", lastname: "Денисов", email: "fedor.denisov@yandex.ru", username: "f.denisov", company: "ООО «Рыба»" },
+            { id: 38, firstname: "Алёна", lastname: "Савельева", email: "alena.savelyeva@mail.ru", username: "a.savelyeva", company: "" },
+            { id: 39, firstname: "Борис", lastname: "Тихонов", email: "boris.tikhonov@gmail.com", username: "b.tikhonov", company: "Издательство «Слово»" },
+            { id: 40, firstname: "Евгения", lastname: "Крылова", email: "evgeniya.krylova@mail.ru", username: "e.krylova", company: "" },
+            { id: 41, firstname: "Геннадий", lastname: "Баранов", email: "gennady.baranov@yandex.ru", username: "g.baranov", company: "ООО «Металл»" },
+            { id: 42, firstname: "Лариса", lastname: "Белова", email: "larisa.belova@mail.ru", username: "l.belova", company: "" },
+            { id: 43, firstname: "Руслан", lastname: "Мельников", email: "ruslan.melnikov@gmail.com", username: "r.melnikov", company: "Фитнес «Сила»" },
+            { id: 44, firstname: "Марина", lastname: "Колесникова", email: "marina.kolesnikova@mail.ru", username: "m.kolesnikova", company: "" },
+            { id: 45, firstname: "Тимофей", lastname: "Громов", email: "timofey.gromov@yandex.ru", username: "t.gromov", company: "ИТ-аутсорсинг" },
+            { id: 46, firstname: "Василиса", lastname: "Романова", email: "vasilisa.romanova@mail.ru", username: "v.romanova", company: "" },
+            { id: 47, firstname: "Денис", lastname: "Карпов", email: "denis.karpov@gmail.com", username: "d.karpov", company: "ООО «Учёт»" },
+            { id: 48, firstname: "Софья", lastname: "Афанасьева", email: "sofya.afanasyeva@mail.ru", username: "s.afanasyeva", company: "" },
+            { id: 49, firstname: "Ярослав", lastname: "Мартынов", email: "yaroslav.martynov@yandex.ru", username: "y.martynov", company: "Стартап «Лифт»" },
+            { id: 50, firstname: "Варвара", lastname: "Шестакова", email: "varvara.shestakova@mail.ru", username: "v.shestakova", company: "" },
+            { id: 51, firstname: "Глеб", lastname: "Ефимов", email: "gleb.efimov@gmail.com", username: "g.efimov", company: "ООО «Сад»" },
+            { id: 52, firstname: "Антонина", lastname: "Давыдова", email: "antonina.davydova@mail.ru", username: "a.davydova", company: "" },
+            { id: 53, firstname: "Семён", lastname: "Прохоров", email: "semyon.prokhorov@yandex.ru", username: "s.prokhorov", company: "Агрохолдинг" },
+            { id: 54, firstname: "Зоя", lastname: "Чернова", email: "zoya.chernova@mail.ru", username: "z.chernova", company: "" },
+            { id: 55, firstname: "Валерий", lastname: "Быков", email: "valery.bykov@gmail.com", username: "v.bykov", company: "ООО «Транс»" },
+            { id: 56, firstname: "Нина", lastname: "Пономарёва", email: "nina.ponomaryova@mail.ru", username: "n.ponomaryova", company: "" },
+            { id: 57, firstname: "Эдуард", lastname: "Сорокин", email: "eduard.sorokin@yandex.ru", username: "e.sorokin", company: "Юрфирма «Право»" },
+            { id: 58, firstname: "Галина", lastname: "Рыбакова", email: "galina.rybakova@mail.ru", username: "g.rybakova", company: "" },
+            { id: 59, firstname: "Лев", lastname: "Терентьев", email: "lev.terentyev@gmail.com", username: "l.terentyev", company: "ООО «Игра»" },
+            { id: 60, firstname: "Агата", lastname: "Миронова", email: "agata.mironova@mail.ru", username: "a.mironova", company: "" },
+            { id: 61, firstname: "Платон", lastname: "Кудрявцев", email: "platon.kudryavtsev@yandex.ru", username: "p.kudryavtsev", company: "Лаборатория «Аналит»" },
+            { id: 62, firstname: "Регина", lastname: "Белоусова", email: "regina.belousova@mail.ru", username: "r.belousova", company: "" },
+            { id: 63, firstname: "Матвей", lastname: "Гусев", email: "matvey.gusev@gmail.com", username: "m.gusev", company: "ООО «Печать»" },
+            { id: 64, firstname: "Элина", lastname: "Трофимова", email: "elina.trofimova@mail.ru", username: "e.trofimova", company: "" },
+            { id: 65, firstname: "Савелий", lastname: "Фомин", email: "saveliy.fomin@yandex.ru", username: "s.fomin", company: "Кафе «Уют»" },
+            { id: 66, firstname: "Милана", lastname: "Родионова", email: "milana.rodionova@mail.ru", username: "m.rodionova", company: "" },
+            { id: 67, firstname: "Тарас", lastname: "Калинин", email: "taras.kalinin@gmail.com", username: "t.kalinin", company: "ООО «Кран»" },
+            { id: 68, firstname: "Яна", lastname: "Лебедева", email: "yana.lebedeva2@mail.ru", username: "y.lebedeva", company: "" },
+        ];
+
+        function isValidEmail(s) {
+            const t = String(s).trim();
+            if (!t) return false;
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(t);
+        }
+
+        /** Разбивает строку по запятым и пробелам, убирает пустые куски */
+        function splitEmails(raw) {
+            return String(raw)
+                .split(/[\s,]+/)
+                .map((x) => x.trim())
+                .filter(Boolean);
+        }
+
+        function App() {
+            const [input, setInput] = useState("");
+            const [emails, setEmails] = useState([]);
+            const [users, setUsers] = useState([]);
+            const [usersLoading, setUsersLoading] = useState(true);
+            const [searchOpen, setSearchOpen] = useState(false);
+            const inputRef = useRef(null);
+            const listRef = useRef(null);
+            const prevEmailLenRef = useRef(0);
+
+            useEffect(() => {
+                if (emails.length > prevEmailLenRef.current) {
+                    const ul = listRef.current;
+                    if (ul) ul.scrollTop = ul.scrollHeight;
+                }
+                prevEmailLenRef.current = emails.length;
+            }, [emails]);
+
+            const invalidEmailCount = useMemo(
+                () => emails.filter((a) => !isValidEmail(a)).length,
+                [emails]
+            );
+
+            const scrollToFirstInvalid = useCallback(() => {
+                const el = listRef.current?.querySelector("li.invalid");
+                el?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+            }, []);
+
+            useEffect(() => {
+                let cancelled = false;
+                const delayMs = 500 + Math.floor(Math.random() * 501);
+                const timerId = window.setTimeout(() => {
+                    if (!cancelled) {
+                        setUsers(normalizeUsers(USERS_LOCAL_RAW));
+                        setUsersLoading(false);
+                    }
+                }, delayMs);
+                return () => {
+                    cancelled = true;
+                    window.clearTimeout(timerId);
+                };
+            }, []);
+
+            const addEmails = useCallback((tokens) => {
+                const list = Array.isArray(tokens) ? tokens : splitEmails(tokens);
+                if (!list.length) return;
+                setEmails((prev) => {
+                    const seen = new Set(prev.map((e) => e.toLowerCase()));
+                    const next = [...prev];
+                    for (const raw of list) {
+                        const e = raw.trim();
+                        if (!e) continue;
+                        const key = e.toLowerCase();
+                        if (seen.has(key)) continue;
+                        seen.add(key);
+                        next.push(e);
+                    }
+                    return next;
+                });
+            }, []);
+
+            const removeAt = useCallback((index) => {
+                setEmails((prev) => prev.filter((_, i) => i !== index));
+            }, []);
+
+            const query = input.trim().toLowerCase();
+            const suggestions = useMemo(() => {
+                if (!query || query.length < 1) return [];
+                return users
+                    .filter((u) => {
+                        const name = (u.name || "").toLowerCase();
+                        const mail = (u.email || "").toLowerCase();
+                        const un = (u.username || "").toLowerCase();
+                        const co = (u.company || "").toLowerCase();
+                        return (
+                            name.includes(query) ||
+                            mail.includes(query) ||
+                            un.includes(query) ||
+                            co.includes(query)
+                        );
+                    })
+                    .slice(0, 8);
+            }, [users, query]);
+
+            const flushInputToList = useCallback(
+                (opts = {}) => {
+                    const { requireAt = false } = opts;
+                    const parts = splitEmails(input);
+                    if (!parts.length) return;
+                    if (requireAt && !parts.some((p) => p.includes("@"))) return;
+                    addEmails(parts);
+                    setInput("");
+                },
+                [input, addEmails]
+            );
+
+            const handlePaste = useCallback(
+                (e) => {
+                    const text = e.clipboardData?.getData("text") ?? "";
+                    const parts = splitEmails(text);
+                    if (parts.length) {
+                        e.preventDefault();
+                        addEmails(parts);
+                    }
+                },
+                [addEmails]
+            );
+
+            const handleChange = (e) => {
+                const v = e.target.value;
+                /** Пробел/запятая в конце: если все токены похожи на email — в список, иначе оставляем для поиска по имени */
+                if (/[\s,]$/.test(v)) {
+                    const core = v.slice(0, -1);
+                    const tokens = splitEmails(core);
+                    if (
+                        tokens.length > 0 &&
+                        tokens.every((t) => t.includes("@"))
+                    ) {
+                        addEmails(tokens);
+                        setInput("");
+                        return;
+                    }
+                }
+                setInput(v);
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === ",") {
+                    e.preventDefault();
+                    flushInputToList({ requireAt: false });
+                } else if (e.key === "Enter") {
+                    e.preventDefault();
+                    flushInputToList({ requireAt: true });
+                }
+            };
+
+            const handleFocus = () => {
+                setSearchOpen(true);
+            };
+
+            const handleBlur = () => {
+                setSearchOpen(false);
+                window.setTimeout(() => flushInputToList({ requireAt: true }), 150);
+            };
+
+            const pickUser = (email) => {
+                addEmails([email]);
+                setInput("");
+                inputRef.current?.focus();
+            };
+
+            return (
+                <div className="card">
+                    <h1>Адреса email</h1>
+                    <div className="field-wrap">
+                        <input
+                            ref={inputRef}
+                            type="text"
+                            inputMode="email"
+                            autoComplete="off"
+                            placeholder="Email или поиск по имени…"
+                            value={input}
+                            onChange={handleChange}
+                            onPaste={handlePaste}
+                            onKeyDown={handleKeyDown}
+                            onFocus={handleFocus}
+                            onBlur={handleBlur}
+                        />
+                        {searchOpen && suggestions.length > 0 && (
+                            <ul className="suggestions" role="listbox">
+                                {suggestions.map((u) => (
+                                    <li key={u.id} role="option">
+                                        <button
+                                            type="button"
+                                            onMouseDown={(e) => e.preventDefault()}
+                                            onClick={() => pickUser(u.email)}
+                                        >
+                                            <span className="name">{u.name}</span>
+                                            <span className="email">{u.email}</span>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                    <p className="hint">
+                        {usersLoading
+                            ? "Загрузка каталога… (имитация ответа сервера, 500–1000 мс)"
+                            : "Разделители: пробел и запятая. Вставка из буфера, Enter или потеря фокуса добавляет в список."}
+                    </p>
+                    {emails.length !== 0 ? (
+                        <>
+                            {invalidEmailCount > 0 && (
+                                <div className="invalid-banner" role="alert" aria-live="polite">
+                                    <span>
+                                        {(() => {
+                                            const n = invalidEmailCount;
+                                            const n10 = n % 10;
+                                            const n100 = n % 100;
+                                            let w = "адресов";
+                                            if (n10 === 1 && n100 !== 11) w = "адрес";
+                                            else if (
+                                                n10 >= 2 &&
+                                                n10 <= 4 &&
+                                                (n100 < 10 || n100 >= 20)
+                                            )
+                                                w = "адреса";
+                                            return `Некорректный формат у ${n} ${w}`;
+                                        })()}
+                                    </span>
+                                    <button type="button" onClick={scrollToFirstInvalid}>
+                                        Показать в списке
+                                    </button>
+                                </div>
+                            )}
+                            <ul className="list" ref={listRef}>
+                                {emails.map((addr, i) => (
+                                    <li
+                                        key={`${addr}-${i}`}
+                                        className={isValidEmail(addr) ? "" : "invalid"}
+                                    >
+                                        <span>{addr}</span>
+                                        <button
+                                            type="button"
+                                            className="remove"
+                                            onClick={() => removeAt(i)}
+                                            aria-label={`Удалить ${addr}`}
+                                            title="Удалить"
+                                        >
+                                            <svg
+                                                width="10"
+                                                height="10"
+                                                viewBox="0 0 10 10"
+                                                aria-hidden="true"
+                                            >
+                                                <path
+                                                    d="M2 2 L8 8 M8 2 L2 8"
+                                                    stroke="currentColor"
+                                                    strokeWidth="1.3"
+                                                    strokeLinecap="round"
+                                                    fill="none"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
+                        </>
+                    ) : undefined}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("root"));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
