@@ -104,7 +104,125 @@
             font-weight: 600;
             line-height: 28px;
             letter-spacing: 0;
-            margin: 0 0 8px;
+            margin: 0 0 24px;
+        }
+
+        .layout {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 48px;
+        }
+
+        .banners {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            width: 285px;
+            flex-shrink: 0;
+        }
+
+        .requirements {
+            flex: 1;
+            max-width: 312px;
+        }
+
+        .requirements h2 {
+            margin: 0 0 12px;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 22px;
+        }
+
+        .requirements h3 {
+            margin: 28px 0 10px;
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+        }
+
+        .requirements p,
+        .requirements li {
+            margin: 0;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 18px;
+            color: var(--hint-color);
+        }
+
+        .requirements ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .requirements li + li {
+            margin-top: 6px;
+        }
+
+        .requirements p + p,
+        .requirements p + ul,
+        .requirements ul + p {
+            margin-top: 10px;
+        }
+
+        .requirements code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 12px;
+        }
+
+        .template-card {
+            margin-top: 12px;
+            padding: 16px;
+            border-radius: 12px;
+            background-color: var(--button-bg);
+        }
+
+        .template-card p {
+            margin: 0 0 12px;
+        }
+
+        .template-download {
+            display: inline-flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 4px;
+            background-color: var(--slide-bg);
+            color: var(--slide-text);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 20px;
+            transition: opacity 0.2s ease;
+        }
+
+        .template-download:hover {
+            opacity: 0.88;
+        }
+
+        .crop-example {
+            margin-top: 12px;
+        }
+
+        /* Hover на обёртке: clip-path у img убирает зону из hit-test и даёт мерцание */
+        .crop-preview {
+            display: inline-block;
+            line-height: 0;
+        }
+
+        .crop-preview img {
+            display: block;
+            width: 134px;
+            max-width: 100%;
+            height: auto;
+            background: #7F00FF;
+        }
+
+        .crop-preview:hover img {
+            clip-path: inset(22px 30px 0 0 round 0 12px 0 0);
+        }
+
+        .crop-example p {
+            margin-top: 12px;
         }
 
         .subtitle {
@@ -114,13 +232,6 @@
             line-height: 18px;
             color: var(--hint-color);
             max-width: 480px;
-        }
-
-        .banners {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            max-width: 285px;
         }
 
         .banner-block {
@@ -321,11 +432,12 @@
 <body>
 
     <div class="toolbar">
-        <button class="toolbar-button" id="maskToggle" type="button">Выключить обрезку</button>
+        
         <button class="toolbar-button" id="themeToggle" type="button">Тёмная тема</button>
     </div>
 
     <h1>Sidebar Banners</h1>
+    <div class="layout">
     <div class="banners">
 
         <div class="banner-block">
@@ -547,6 +659,45 @@
             </div>
         </div>
 
+    </div>
+
+    <aside class="requirements">
+        <h2>Требования к изображению</h2>
+        <ul>
+            <li>Размер: 268x208px (это уже с учётом 2x)<br />Рендериться будет как 134x104px.</li>
+            <li>Видимая часть изображения: 104x82px от левого нижнего угла. Всё, что выходит за эту область — не видно.</li>
+            <li>Для светлой и тёмной темы могут использоваться отдельные изображения, если иллюстрация зависит от фона.<br />Но не усложняйте себе жизнь, используйте одно изображение :)</li>
+        </ul>
+
+        <h3>Шаблон в Figma</h3>
+        <div class="template-card">
+            <p>Готовый файл с размерами и областями — можно открыть в Figma и собрать своё изображение.</p>
+            <a class="template-download" href="files/BannerImageTemplate.fig" download>
+                Скачать BannerImageTemplate.fig
+            </a>
+        </div>
+
+        <h3>Зоны обрезки</h3>
+        <div class="crop-example">
+            <div class="crop-preview">
+                <img src="assets/default.png" width="134" height="104" alt="Пример изображения">
+            </div>
+            <p>
+                На этом примере фиолетовый прямоугольник с иллюстрацией — это видимая зона изображения. Жёлто-чёрная «опасная» зона сверху и справа попадает
+                за пределы маски и обрезается. Наведи курсором на изображение, чтобы увидеть какая часть обрежется.
+            </p>
+            <p>
+                «Опасная» зона всё равно нужна в файле на случай изменения анимации.<br />Рисуйте ключевые
+                детали только в фиолетовой области; части иллюстрации в danger-зоне оставляйте про запас.
+            </p>
+            <p>
+                Нажатие кнопки ниже демонстрирует разницу между изображением до и после обрезки.
+            </p>
+            </p>
+                <button class="toolbar-button" id="maskToggle" type="button">Выключить обрезку</button>
+            </p>
+        </div>
+    </aside>
     </div>
 
     <script>
