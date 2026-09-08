@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sidebar Banners — примеры</title>
+    <style>
+        @font-face {
+            font-family: 'SB Sans Interface';
+            src: url('fonts/SBSansInterface-Regular.woff2') format('woff2');
+            font-weight: 400;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SB Sans Interface';
+            src: url('fonts/SBSansInterface-Semibold.woff2') format('woff2');
+            font-weight: 600;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        @font-face {
+            font-family: 'SB Sans Interface';
+            src: url('fonts/SBSansInterface-Bold.woff2') format('woff2');
+            font-weight: 700;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        :root {
+            --page-bg: #f4f4f9;
+            --page-text: #41424e;
+            --button-bg: #e8e8e8;
+            --button-hover: #d8d8d8;
+            /* ContentSlide light: invertNeutral.decorDefault / textMain */
+            --slide-bg: #51525d;
+            --slide-text: #e6e8ef;
+            --close-bg: #51525d;
+            --close-color: #b6bac7;
+            --hint-color: #666666;
+            --drop-border: #888;
+            --font-ui: 'SB Sans Interface', sans-serif;
+        }
+
+        [data-theme="dark"] {
+            --page-bg: #121212;
+            --page-text: #e6e8ef;
+            --button-bg: #2a2a2a;
+            --button-hover: #3a3a3a;
+            /* ContentSlide dark: neutral.decorDefault / textMain */
+            --slide-bg: #393a46;
+            --slide-text: #e6e8ef;
+            --close-bg: #b6bac7;
+            --close-color: #575966;
+            --hint-color: #a0a0a0;
+            --drop-border: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            background-color: var(--page-bg);
+            color: var(--page-text);
+            padding: 24px;
+            margin: 0;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: var(--button-bg);
+            color: var(--page-text);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            font-weight: 400;
+            transition: background-color 0.3s ease;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--button-hover);
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 28px;
+            letter-spacing: 0;
+            margin: 0 0 8px;
+        }
+
+        .subtitle {
+            margin: 0 0 24px;
+            font-size: 13px;
+            font-weight: 400;
+            line-height: 18px;
+            color: var(--hint-color);
+            max-width: 480px;
+        }
+
+        .banners {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 285px;
+        }
+
+        .banner-block {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .banner-label {
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            color: var(--hint-color);
+        }
+
+        .playground-hint {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 400;
+            line-height: 16px;
+            color: var(--hint-color);
+            margin-bottom: 50px;
+        }
+
+        .playground-drop {
+            position: relative;
+        }
+
+        .playground-drop input[type="file"] {
+            display: none;
+        }
+
+        .playground-image-drop {
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 2;
+            width: 104px;
+            height: 72px;
+            border: 2px dashed transparent;
+            border-radius: 0 12px 12px 0;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .playground-image-drop:hover,
+        .playground-image-drop.drag-over,
+        .playground-image-drop:focus-visible {
+            border-color: var(--drop-border);
+        }
+
+        /* Как SidebarBanners: Wrapper 80px / Slider 72px */
+        .banner-wrapper {
+            position: relative;
+            width: 100%;
+            height: 80px;
+            overflow: visible;
+        }
+
+        .banner-slider {
+            position: relative;
+            width: 100%;
+            height: 72px;
+            overflow: visible;
+        }
+
+        /* ContentSlide / Slide */
+        .slide {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            background-color: var(--slide-bg);
+            overflow: visible;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .slide-text-wrapper {
+            position: relative;
+            z-index: 1;
+            min-width: 0;
+            margin-left: 12px;
+        }
+
+        .slide-text-mask {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* SansLabelL: 14/20, weight 600, letter-spacing 0 */
+        .slide-text {
+            display: flex;
+            align-items: center;
+            max-width: 183px;
+            margin: 0;
+            font-family: var(--font-ui);
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 20px;
+            letter-spacing: 0;
+            color: var(--slide-text);
+            white-space: nowrap;
+        }
+
+        .slide-text[contenteditable="true"] {
+            cursor: text;
+            outline: none;
+            border-radius: 2px;
+            min-width: 24px;
+            max-width: 183px;
+            overflow: hidden;
+        }
+
+        .slide-text[contenteditable="true"]:hover,
+        .slide-text[contenteditable="true"]:focus {
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        /* SlideImageMask: 144×96, top/right 0 */
+        .slide-image-mask {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 144px;
+            height: 85px;
+            border-radius: 12px;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        /* SlideImage: top -22px, right -30px, width 134px */
+        .slide-image {
+            position: absolute;
+            top: -22px;
+            right: -30px;
+            width: 134px;
+            height: auto;
+            display: block;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            background-color: var(--close-bg);
+            color: var(--close-color);
+            cursor: default;
+            opacity: 0;
+            transition: opacity 0.2s ease, color 0.2s ease;
+            pointer-events: none;
+        }
+
+        .slide:hover .close-button {
+            opacity: 1;
+        }
+
+        .close-button svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .theme-only-light {
+            display: block;
+        }
+
+        .theme-only-dark {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-only-light {
+            display: none;
+        }
+
+        [data-theme="dark"] .theme-only-dark {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <button class="theme-toggle" id="themeToggle" type="button">Тёмная тема</button>
+
+    <h1>Sidebar Banners</h1>
+    <div class="banners">
+
+        <div class="banner-block">
+            <div class="banner-label">Песочница</div>
+            <div class="playground-drop" id="playgroundDrop">
+                <input type="file" id="playgroundFile" accept="image/*">
+                <div class="banner-wrapper">
+                    <div class="banner-slider">
+                        <div class="slide">
+                            <div class="slide-text-wrapper">
+                                <div class="slide-text-mask">
+                                    <p class="slide-text" contenteditable="true" spellcheck="false">Тестовый баннер</p>
+                                </div>
+                                <div class="slide-text-mask">
+                                    <p class="slide-text" contenteditable="true" spellcheck="false">Вы восхитительны!
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="slide-image-mask">
+                                <img class="slide-image" id="playgroundImage" src="assets/default.png" alt="">
+                            </div>
+                            <div class="playground-image-drop" id="playgroundImageDrop" role="button" tabindex="0"
+                                aria-label="Перетащите изображение или нажмите, чтобы выбрать"></div>
+                            <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 6L6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p class="playground-hint">Текст можно редактировать.<br />Картинку можно загрузить свою (клик или DnD).
+            </p>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">goCloudTech.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">Приглашаем на</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">конференцию 15 октября</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/goCloudTech.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">aiAgentLight.png / aiAgentDark.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">Самообучающийся</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">AI-агент</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask theme-only-light">
+                            <img class="slide-image" src="assets/aiAgentLight.png" alt="">
+                        </div>
+                        <div class="slide-image-mask theme-only-dark">
+                            <img class="slide-image" src="assets/aiAgentDark.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">halfPrice.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">Скидка 50% на сервисы</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">Evolution Data Platform</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/halfPrice.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">bonuses.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">4&nbsp;000 бонусов</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">для физических лиц</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/bonuses.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">addCompany.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">20&nbsp;000 бонусов</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">для юрлиц и ИП</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/addCompany.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">referralProgram.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">Перезагрузка</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">реферальной программы</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/referralProgram.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="banner-block">
+            <div class="banner-label">gitverse.png</div>
+            <div class="banner-wrapper">
+                <div class="banner-slider">
+                    <div class="slide">
+                        <div class="slide-text-wrapper">
+                            <div class="slide-text-mask">
+                                <p class="slide-text">AI-платформа</p>
+                            </div>
+                            <div class="slide-text-mask">
+                                <p class="slide-text">для разработки</p>
+                            </div>
+                        </div>
+                        <div class="slide-image-mask">
+                            <img class="slide-image" src="assets/gitverse.png" alt="">
+                        </div>
+                        <button class="close-button" type="button" tabindex="-1" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 6L6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                html.setAttribute('data-theme', 'dark');
+                themeToggle.textContent = 'Светлая тема';
+            } else {
+                html.removeAttribute('data-theme');
+                themeToggle.textContent = 'Тёмная тема';
+            }
+        };
+
+        applyTheme(localStorage.getItem('theme') === 'dark' ? 'dark' : 'light');
+
+        themeToggle.addEventListener('click', () => {
+            const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', next);
+            applyTheme(next);
+        });
+
+        const playground = document.getElementById('playgroundDrop');
+        const imageDrop = document.getElementById('playgroundImageDrop');
+        const fileInput = document.getElementById('playgroundFile');
+        const playgroundImage = document.getElementById('playgroundImage');
+
+        const loadImage = (file) => {
+            if (!file || !file.type.startsWith('image/')) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                playgroundImage.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        };
+
+        imageDrop.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        imageDrop.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        playground.querySelectorAll('[contenteditable="true"]').forEach((line) => {
+            line.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    line.blur();
+                }
+            });
+
+            line.addEventListener('paste', (event) => {
+                event.preventDefault();
+                const text = (event.clipboardData || window.clipboardData).getData('text/plain')
+                    .replace(/\s+/g, ' ')
+                    .trim();
+                document.execCommand('insertText', false, text);
+            });
+        });
+
+        fileInput.addEventListener('change', (event) => {
+            loadImage(event.target.files[0]);
+        });
+
+        imageDrop.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            imageDrop.classList.add('drag-over');
+        });
+
+        imageDrop.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            imageDrop.classList.remove('drag-over');
+        });
+
+        imageDrop.addEventListener('drop', (event) => {
+            event.preventDefault();
+            imageDrop.classList.remove('drag-over');
+            loadImage(event.dataTransfer.files[0]);
+        });
+    </script>
+
+</body>
+
+</html>
