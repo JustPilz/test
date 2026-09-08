@@ -72,10 +72,17 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        .theme-toggle {
+        .toolbar {
             position: fixed;
             top: 20px;
             right: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .toolbar-button {
             padding: 10px 15px;
             background-color: var(--button-bg);
             color: var(--page-text);
@@ -86,10 +93,9 @@
             font-size: 14px;
             font-weight: 400;
             transition: background-color 0.3s ease;
-            z-index: 1000;
         }
 
-        .theme-toggle:hover {
+        .toolbar-button:hover {
             background-color: var(--button-hover);
         }
 
@@ -250,6 +256,10 @@
             pointer-events: none;
         }
 
+        [data-mask="off"] .slide-image-mask {
+            overflow: visible;
+        }
+
         /* SlideImage: top -22px, right -30px, width 134px */
         .slide-image {
             position: absolute;
@@ -310,7 +320,10 @@
 
 <body>
 
-    <button class="theme-toggle" id="themeToggle" type="button">Тёмная тема</button>
+    <div class="toolbar">
+        <button class="toolbar-button" id="maskToggle" type="button">Выключить обрезку</button>
+        <button class="toolbar-button" id="themeToggle" type="button">Тёмная тема</button>
+    </div>
 
     <h1>Sidebar Banners</h1>
     <div class="banners">
@@ -556,6 +569,19 @@
             const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', next);
             applyTheme(next);
+        });
+
+        const maskToggle = document.getElementById('maskToggle');
+
+        maskToggle.addEventListener('click', () => {
+            const off = html.getAttribute('data-mask') === 'off';
+            if (off) {
+                html.removeAttribute('data-mask');
+                maskToggle.textContent = 'Выключить обрезку';
+            } else {
+                html.setAttribute('data-mask', 'off');
+                maskToggle.textContent = 'Включить обрезку';
+            }
         });
 
         const playground = document.getElementById('playgroundDrop');
