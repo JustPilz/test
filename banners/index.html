@@ -369,10 +369,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">Приглашаем на</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">Приглашаем на</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">конференцию 15 октября</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">конференцию 15 октября</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -395,10 +395,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">Самообучающийся</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">Самообучающийся</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">AI-агент</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">AI-агент</p>
                             </div>
                         </div>
                         <div class="slide-image-mask theme-only-light">
@@ -424,10 +424,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">Скидка 50% на сервисы</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">Скидка 50% на сервисы</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">Evolution Data Platform</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">Evolution Data Platform</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -450,10 +450,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">4&nbsp;000 бонусов</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">4&nbsp;000 бонусов</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">для физических лиц</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">для физических лиц</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -476,10 +476,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">20&nbsp;000 бонусов</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">20&nbsp;000 бонусов</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">для юрлиц и ИП</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">для юрлиц и ИП</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -502,10 +502,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">Перезагрузка</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">Перезагрузка</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">реферальной программы</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">реферальной программы</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -528,10 +528,10 @@
                     <div class="slide">
                         <div class="slide-text-wrapper">
                             <div class="slide-text-mask">
-                                <p class="slide-text">AI-платформа</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">AI-платформа</p>
                             </div>
                             <div class="slide-text-mask">
-                                <p class="slide-text">для разработки</p>
+                                <p class="slide-text" contenteditable="true" spellcheck="false">для разработки</p>
                             </div>
                         </div>
                         <div class="slide-image-mask">
@@ -612,7 +612,7 @@
             }
         });
 
-        playground.querySelectorAll('[contenteditable="true"]').forEach((line) => {
+        document.querySelectorAll('.slide-text').forEach((line) => {
             line.addEventListener('keydown', (event) => {
                 if (event.key === 'Enter') {
                     event.preventDefault();
